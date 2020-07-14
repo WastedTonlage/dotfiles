@@ -94,4 +94,24 @@ nnoremap <F2> <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap r    <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <F4> <cmd>call Toggle_header()<CR>
 
-function Run_cmake 
+function Build()
+    let current_dir = getcwd()
+    let builddir = system("/home/mad/work/scripts/find_builddir " . bufname("%"))
+    if v:shell_error != 0 
+        return
+    endif
+    exec 'cd' builddir
+    ! make
+    exec 'cd' current_dir
+endfunction
+
+function Run_Cmake()
+    let current_dir = getcwd()
+    let builddir = system("/home/mad/work/scripts/find_builddir " . bufname("%"))
+    if v:shell_error != 0 
+        return
+    endif
+    exec 'cd' builddir
+    ! cmake ..
+    exec 'cd' current_dir
+endfunction
