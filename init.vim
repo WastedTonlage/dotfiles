@@ -1,11 +1,17 @@
 call plug#begin("~/.config/nvim/plugged")
-
 Plug 'gyim/vim-boxdraw'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
 Plug 'neovim/nvim-lsp'
+Plug 'ajh17/vimcompletesme'
+
+" Snippets
+Plug 'SirVer/ultisnips'
+
+" Git (mostly for merging)
+Plug 'tpope/vim-fugitive'
 
 call plug#end()
 
@@ -25,6 +31,10 @@ set tabstop=4
 
 set hidden
 
+" go to conf
+command! Configure edit ~/.config/nvim/init.vim
+cnoreabbrev conf Configure 
+"
 " Danish keyboard 
 nmap ¤ $
 nmap å <CMD>q<CR>
@@ -50,8 +60,6 @@ noremap C-k k
 inoremap <c-s> <ESC>:w<CR>i
 noremap <c-s> :w<CR>
 
-command! Conf :e ~/.config/nvim/init.vim
-
 color delek
 
 lua << EOF
@@ -59,7 +67,11 @@ require('nvim_lsp').pyls.setup{}
 require('nvim_lsp').clangd.setup{}
 EOF
 
-autocmd Filetype c,cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
+augroup lspgroup
+    autocmd Filetype c,cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
+    autocmd Filetype c,cpp nnoremap <TAB> <C-x><C-o>
+    autocmd Filetype c,cpp inoremap <TAB> <C-x><C-o>
+augroup END
 
 " Make F4 switch between .h and .cpp like QT Creator
 function Goto_header() 
@@ -94,4 +106,17 @@ nnoremap <F2> <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap r    <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <F4> <cmd>call Toggle_header()<CR>
 
-function Run_cmake 
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+let g:UltiSnipsSnippetDirectories=["UltiSnips"]
+
+" Spell checking
+autocmd FileType text call SpellChecking()
+
+function SpellChecking()
+	setlocal spell
+
+	" Fixes last spelling mistake
+	inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
+endfunction
