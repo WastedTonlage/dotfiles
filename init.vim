@@ -120,3 +120,25 @@ function SpellChecking()
 	" Fixes last spelling mistake
 	inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
 endfunction
+
+function Build()
+    let current_dir = getcwd()
+    let builddir = system("/home/mad/work/scripts/find_builddir " . bufname("%"))
+    if v:shell_error != 0 
+        return
+    endif
+    exec 'cd' builddir
+    ! make
+    exec 'cd' current_dir
+endfunction
+
+function Run_Cmake()
+    let current_dir = getcwd()
+    let builddir = system("/home/mad/work/scripts/find_builddir " . bufname("%"))
+    if v:shell_error != 0 
+        return
+    endif
+    exec 'cd' builddir
+    ! cmake ..
+    exec 'cd' current_dir
+endfunction

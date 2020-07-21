@@ -1,0 +1,16 @@
+#! /bin/python
+
+import sys
+
+fileName = sys.argv[1]
+f = open(filename, "r")
+
+firstLine = f.readline()
+method = firstline.split(" ")[0]
+
+parsingHeaders = True
+headers = 
+for line in f.readlines():
+    if parsingHeaders:
+
+
