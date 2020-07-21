@@ -1,0 +1,178 @@
+#! /bin/zsh 
+
+function selectTags () {
+	local tags=()
+	while true; do
+		thisTag=$(echo "select name from tags" | sqlite3 /home/tonlage/Music/musicd.db | prepend stop | dmenu -l 20 -p "Add tag.. (${(j:, :)tags})")
+		if [[ "$thisTag" == "stop" ]]; then
+			break
+		fi
+		tags+=("$thisTag")
+	done
+	for tag in $tags; do
+		echo "insert or replace into tags (name) values (\"$tag\")" | sqlite3 /home/tonlage/Music/musicd.db
+	done
+	echo "$tags"
+}
+
+function trystart() {
+	if [[ ! -a /tmp/musicd-running ]]; then
+		mplayer-wrapper &
+	fi
+}
+
+function tryrestart() {
+	if [[ ! -a /tmp/musicd-running ]]; then
+		mplayer-wrapper &
+	else 
+		rm /tmp/musicd-index
+		echo "quit" > /tmp/musicd-mplayer-commands
+	fi
+}
+
+function removepausetag() {
+	if [[ -f /tmp/musicd-paused ]]; then
+		rm /tmp/musicd-paused
+	fi
+}
+
+function yt() {
+	mkdir /tmp/musicd-yt 2>/dev/null
+	searchResults=$(curl -L -A "Mozilla/4.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0" -X GET "https://youtube.com/results?search_query=$(echo $1 | grep -oP '^.*?(?=($|#))' | sed 's/ /\+/g')" | grep -oP '(?<=window\["ytInitialData"\] = ).*(?=;$)')
+	id=$(echo "$searchResults" | jq ".contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents | .[0] | .itemSectionRenderer.contents | .[] | .videoRenderer | (.title.runs | .[0] | .text), .videoId" | sed "/^null$/d" | paste -s -d" \n" | dmenu -i -l 20 | grep -oP '(?<=")\S*(?="$)')
+	echo $id
+	if [[ ! "$id" == "" ]]; then 
+		title=$(echo "$searchResults" | jq ".contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents | .[0] | .itemSectionRenderer.contents | .[] | .videoRenderer | select(.videoId == \"$id\") | .title.runs | .[0] | .text" | head -c -2 | tail -c +2)
+		youtube-dl -f 251 "$id" -o "/tmp/musicd-yt/$id" &!
+		sleep 5
+		echo "$title" > /tmp/musicd-yt/$id-title
+		echo "/tmp/musicd-yt/$id.part" > /tmp/musicd-queue	
+		tryrestart
+	fi
+}
+
+function play() {
+	echo "select location from songs where name=\"$(echo 'select name from songs' | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -i -l 30 -p 'Select Song')\"" | sqlite3 /home/tonlage/Music/musicd.db > /tmp/musicd-queue
+	echo "1" > /tmp/musicd-index
+	removepausetag
+	tryrestart
+}
+
+function enqueue() {
+	echo "select location from songs where name=\"$(echo 'select name from songs' | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -i -l 30 -p 'Select Song')\"" | sqlite3 /home/tonlage/Music/musicd.db >> /tmp/musicd-queue
+	trystart
+}
+
+function make_suggestions() {
+	local -a suggestions
+	suggestions+=$(echo $1 | grep -oP '(?<=- )[^/]*?(?=(\.|$|\(|@|\[))')
+	suggestions+=$(echo $1 | grep -oP '(?<=- )[^/]*?(?= -)')
+	suggestions+=$(echo $1 | grep -oP '(?<=^|/)[^/]*?(?=\.)')
+	suggestions+=$(echo $1 | grep -oP '(?<=/|^)[^/]*?(?= -)')
+	suggestions+=$(echo $1 | grep -oP '(?<=- )[^/]*?(?=(\.|$))')
+	suggestions+=$file
+	printf "%s\n" "${suggestions[@]}"
+}
+
+function index() {
+	tags=$(selectTags)
+	for file in **/*.(opus|mp3); do
+		echo "insert into songs (name, location, tags) values (\"$(make_suggestions "$file" | dmenu -l 6 -p \\"Name for $file\\")\", \"$(pwd)/$file\", \"$tags\")" | sqlite3 /home/tonlage/Music/musicd.db
+	done
+}
+
+function toggle-loop() {
+	if [[ -a /tmp/musicd-loop ]]; then
+		rm /tmp/musicd-loop
+	else
+		touch /tmp/musicd-loop
+	fi
+	pkill -RTMIN+20 i3blocks
+}
+
+function next() {
+	echo "quit" > /tmp/musicd-mplayer-commands
+}
+
+function pause() {
+	if [ -e /tmp/musicd-paused ]; then
+		rm /tmp/musicd-paused
+	else
+		touch /tmp/musicd-paused
+	fi
+	pkill -RTMIN+20 i3blocks
+	echo "pause" > /tmp/musicd-mplayer-commands
+}
+
+function play_tag() {
+	echo "select location, tags from songs" | sqlite3 /home/tonlage/Music/musicd.db -line | grep -P -B1 "tags =.* $(echo "select name from tags" | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -p 'Select tag' -l 20)( |$)" | grep -oP "(?<=location = ).*$" > /tmp/musicd-queue
+	echo "1" > /tmp/musicd-index
+	if [ ! -e /tmp/musicd-shuffle ]; then
+		touch /tmp/musicd-shuffle
+	fi
+	removepausetag
+	tryrestart
+}
+
+function enqueue_tag() {
+	echo "select location, tags from songs" | sqlite3 /home/tonlage/Music/musicd.db -line | grep -P -B1 "tags =.* $(echo "select name from tags" | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -p 'Select tag' -l 20)( |$)" | grep -oP "(?<=location = ).*$" >> /tmp/musicd-queue
+	trystart
+}
+
+function toggle-shuffle () {
+	if [ -e /tmp/musicd-shuffle ]; then
+		rm /tmp/musicd-shuffle 
+	else
+		touch /tmp/musicd-shuffle 
+	fi
+	pkill -RTMIN+20 i3blocks
+}
+
+function seek () {
+	echo "seek $1 1" > /tmp/musicd-mplayer-commands
+}
+
+function showqueue () {
+	nl -w 2 /tmp/musicd-queue |gawk 'BEGIN{getline idx <"/tmp/musicd-index"} NR > idx - 10 && NR < idx + 10 && NR != idx {print $0 } NR == idx {print "\033[34m" $0 "\033[0m"}' 
+}
+
+function volume () {
+	echo "volume $1 1" > /tmp/musicd-mplayer-commands
+}
+
+if [[ "$1" == "play" ]]; then
+	play
+elif [[ "$1" == "yt" ]]; then
+	yt $2
+elif [[ "$1" == "index" ]]; then
+	index 
+elif [[ "$1" == "loop" ]]; then
+	toggle-loop 
+elif [[ "$1" == "shuffle" ]]; then
+	toggle-shuffle 
+elif [[ "$1" == "enqueue" ]]; then
+	enqueue 
+elif [[ "$1" == "next" ]]; then
+	next 
+elif [[ "$1" == "pause" ]]; then
+	pause 
+elif [[ "$1" == "playtag" ]]; then
+	play_tag 
+elif [[ "$1" == "enqueuetag" ]]; then
+	enqueue_tag 
+elif [[ "$1" == "seek" ]]; then
+	seek $2
+elif [[ "$1" == "showqueue" ]]; then
+	showqueue
+elif [[ "$1" == "_select-tags" ]]; then
+	echo $(selectTags)
+elif [[ "$1" == "volume" ]]; then
+	volume $2
+elif [[ "$1" == "_statusmessage" ]]; then
+	echo $(cat /tmp/musicd-current-song-name | sed -r 's/.+/♫ \0/')\
+		 $( [ -e /tmp/musicd-loop ] && echo '🔄')\
+		 $( [ -e /tmp/musicd-paused ] && echo '⏸️')\
+		 $( [ -e /tmp/musicd-shuffle ] && echo '🔀 ')
+else
+	echo "Invalid command: \"$1\""
+fi

@@ -1,0 +1,3 @@
+cd /home/tonlage/src/dwm
+pkill dwm
+make install

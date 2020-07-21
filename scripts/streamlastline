@@ -1,0 +1,8 @@
+#! /usr/bin/zsh
+
+mkfifo /tmp/musicd-mplayer-commands 2>/dev/null
+mkfifo /tmp/musicd-mplayer-output 2>/dev/null
+
+while read line; do
+	echo $line > $1
+done

@@ -1,0 +1,3 @@
+cd /home/tonlage/programs/dwmblocks 
+make install
+pkill dwmblocks

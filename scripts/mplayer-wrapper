@@ -1,0 +1,71 @@
+#! /usr/bin/zsh
+
+# Ensure all pipes are already in place
+mkfifo /tmp/musicd-mplayer-commands 2>/dev/null
+mkfifo /tmp/musicd-mplayer-output 2>/dev/null
+
+# File that marks script as running
+touch /tmp/musicd-running
+streamlastline /tmp/musicd-mplayer-last-line < /tmp/musicd-mplayer-output &
+
+# Need this so linux doesn't send EOF when mplayer quits
+exec 6<>/tmp/musicd-mplayer-output 
+
+function selectTags () {
+        local tags=()
+        while true; do
+                thisTag=$(echo "select name from tags" | sqlite3 /home/tonlage/Music/musicd.db | prepend stop | dmenu -l 20 -p "Add tag.. (${(j:, :)tags})")
+                if [[ "$thisTag" == "stop" ]]; then
+                        break
+                fi
+                tags+=("$thisTag")
+        done
+        for tag in $tags; do
+                echo "insert or replace into tags (name) values (\"$tag\")" | sqlite3 /home/tonlage/Music/musicd.db
+        done
+        echo "$tags"
+}
+
+while true; do
+	if [[ ! -a /tmp/musicd-index ]]; then
+		echo 1 > /tmp/musicd-index
+	fi
+	local index=$(cat /tmp/musicd-index)
+	if [[ "$index" -gt "$(cat /tmp/musicd-queue | wc -l)" ]]; then
+		if [[ -a /tmp/musicd-loop ]]; then
+			index=1
+		else
+			rm /tmp/musicd-current-song-name
+			pkill -RTMIN+20 i3blocks
+			break
+		fi
+	fi
+	song_location=$(sed "${index}q;d" /tmp/musicd-queue)
+
+	if [[ $(echo $song_location | cut -b-15) == "/tmp/musicd-yt/" ]]; then
+		cat $(echo ${song_location} | head -c-6)-title > /tmp/musicd-current-song-name
+	else
+		echo "select name from songs where location=\"$song_location\"" | sqlite3 /home/tonlage/Music/musicd.db > /tmp/musicd-current-song-name 
+	fi
+	pkill -RTMIN+20 i3blocks
+	
+	mplayer -slave -input file=/tmp/musicd-mplayer-commands "$song_location" > /tmp/musicd-mplayer-output 2>/dev/null
+	
+	if [[ $(echo $song_location | cut -b-15) == "/tmp/musicd-yt/" && ! -a "$song_location-denied" ]]; then
+		if [[ $(echo -e "No\nYes" | dmenu -i -p "Would you like to save the song") == "Yes" ]]; then 
+			title=$(echo $(echo $song_location | head -c-6)-title | xargs cat)
+			cp "$song_location" "/home/tonlage/Music/musicd/$title.webm"
+			tags="$(selectTags)"
+			echo "insert into songs (location, name, tags) values (\"/home/tonlage/Music/musicd/$title.webm\", \"$(echo "$title" | dmenu -p 'Select song name')\", \"$tags\")" | sqlite3 /home/tonlage/Music/musicd.db
+		else 
+			touch "$song_location-denied"
+		fi
+	fi
+	if [[ -a /tmp/musicd-index &&  ! -a /tmp/musicd-shuffle  ]]; then
+		echo "$(( $( cat /tmp/musicd-index ) + 1))" > /tmp/musicd-index
+	elif [[ -a /tmp/musicd-shuffle ]]; then
+		echo " $(( $RANDOM%$(cat /tmp/musicd-queue | wc -l)+1)) " > /tmp/musicd-index
+	fi
+
+done
+rm /tmp/musicd-running

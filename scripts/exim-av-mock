@@ -1,0 +1,5 @@
+#! /bin/sh
+
+echo no
+echo run with args: "$@" > /tmp/exim_cmdline
+exit 0

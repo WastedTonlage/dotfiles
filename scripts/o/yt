@@ -1,0 +1,22 @@
+#! /bin/zsh
+
+searchResuts=$(curl -L -A "Mozilla/4.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0" -X GET "https://youtube.com/results?search_query=$(echo $1 | grep -oP '^.*?(?=($|#))' | sed 's/ /\+/g')" | grep -oP '(?<=window\["ytInitialData"\] = ).*(?=;$)')
+	id=$(echo "$searchResults" | jq ".contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents | .[0] | .itemSectionRenderer.contents | .[] | .videoRenderer | (.title.runs | .[0] | .text), .videoId" | sed "/^null$/d" | paste -s -d" \n" | dmenu -i -l 20 | grep -oP '(?<=")\S*(?="$)')
+echo $id
+title=$(echo "$searchResults" | jq ".contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents | .[0] | .itemSectionRenderer.contents | .[] | .videoRenderer | select(.videoId == \"$id\") | .title.runs | .[0] | .text" | head -c -2 | tail -c +2)
+youtube-dl "$id" -o - | tee "/tmp/currentlyPlayingSong"| mplayer -
+if [[ $(echo -e "No\nYes" | dmenu -i -p "Would you like to save the song") == "Yes" ]]; then 
+	cp "/tmp/currentlyPlayingSong" "/home/tonlage/Music/musicd/$title"
+	tags=()
+	while true; do
+		thisTag=$(echo "select name from tags" | sqlite3 /home/tonlage/Music/musicd.db | prepend stop | dmenu -l 20 -p "Add tag.. (${(j:, :)tags})")
+		if [[ "$thisTag" == "stop" ]]; then
+			break
+		fi
+		tags+=("$thisTag")
+	done
+	for tag in $tags; do
+		echo "insert or replace into tags (name) values (\"$tag\")" | sqlite3 /home/tonlage/Music/musicd.db
+	done
+	echo "insert into songs (location, name, tags) values (\"/home/tonlage/Music/musicd/$title\", \"$(echo "$title" | dmenu -p 'Select song name')\", \"$tags\")" | sqlite3 /home/tonlage/Music/musicd.db
+fi

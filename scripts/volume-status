@@ -1,0 +1,12 @@
+#! /bin/sh
+
+VOLUME=$(pactl list sinks | grep -F -A10 "Name: alsa_output.usb-C-Media" | grep -P "^\s*Volume:" | grep -m1 -oP "(?<= )\d*(?=% )" | head -n1)
+if [ "$VOLUME" -lt 10 ]; then
+	EMOJI="🔈"
+elif [ "$VOLUME" -lt 70 ]; then
+	EMOJI="🔉"
+else
+	EMOJI="🔊"
+fi
+
+echo $EMOJI $VOLUME %

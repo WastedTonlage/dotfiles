@@ -1,0 +1,7 @@
+#! /bin/sh
+
+if [ $(ip r | head -n1 | cut -d " " -f5 ) = "tun0" ]; then
+	echo "🔒NordVpn Connected"
+else
+	echo "🔓No VPN"
+fi
