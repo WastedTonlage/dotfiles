@@ -1,0 +1,24 @@
+#! /bin/sh
+
+full=$(realpath $1)
+
+if [ ! -f "$full" -o ! $(echo "$full" | grep -oP '.{4}$') = '.cpp' ]; then
+    echo "please run on a cpp file"
+    exit 1
+fi
+
+dir=$(echo "$full" | sed -r 's/^(.*\/)[^\/]*$/\1/') 
+filename=$(echo "$full" | sed -r 's/^.*\/([^\/]*)\.cpp$/\1/') 
+
+while true; do
+    headerfile=$(ls "$dir" | grep -m1 -i "${filename}.h")
+    if [ $? -eq 0 ]; then # Found
+        echo "${dir}${headerfile}"
+        exit 0
+    fi
+    ls "$dir" | grep -F 'compile_commands.json' > /dev/null
+    if [ $? -eq 0 -o "${dir}" = '/' ]; then
+        exit 1
+    fi
+    dir=$(echo "${dir}" | sed -r 's|^(.*/)[^/]+/|\1|')
+done
