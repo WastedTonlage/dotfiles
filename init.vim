@@ -37,6 +37,7 @@ cnoreabbrev conf Configure
 "
 " Danish keyboard 
 nmap ¤ $
+omap ¤ $
 nmap å <CMD>q<CR>
 
 nnoremap ( <CMD>noh<CR>
@@ -49,6 +50,10 @@ nnoremap gg ggzz
 nnoremap G Gzz
 vnoremap gg ggzz
 vnoremap G Gzz
+nnoremap n nzz
+nnoremap N Nzz
+vnoremap n nzz
+vnoremap N Nzz
 nnoremap { {zz
 nnoremap } }zz
 vnoremap { {zz
@@ -116,10 +121,12 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips"]
 autocmd FileType text call SpellChecking()
 
 function SpellChecking()
-	setlocal spell
+    if expand('%:t') != 'settings.txt'
+        setlocal spell
 
-	" Fixes last spelling mistake
-	inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
+        " Fixes last spelling mistake
+        inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
+    endif
 endfunction
 
 function Build()
