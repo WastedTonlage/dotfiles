@@ -65,6 +65,7 @@ color delek
 lua << EOF
 require('nvim_lsp').pyls.setup{}
 require('nvim_lsp').clangd.setup{}
+require('nvim_lsp').rust_analyzer.setup{}
 EOF
 
 augroup lspgroup
