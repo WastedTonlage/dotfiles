@@ -42,6 +42,8 @@ nmap å <CMD>q<CR>
 
 nnoremap ( <CMD>noh<CR>
 
+nnoremap % %zz
+vnoremap % %zz
 nnoremap j gjzz
 nnoremap k gkzz
 vnoremap j gjzz
@@ -64,6 +66,8 @@ noremap C-k k
 
 inoremap <c-s> <ESC>:w<CR>i
 noremap <c-s> :w<CR>
+
+set clipboard+=unnamedplus
 
 color delek
 
