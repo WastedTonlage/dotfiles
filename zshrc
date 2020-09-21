@@ -45,10 +45,10 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh > /dev/null
 
 # PATH setup
-export PATH="/home/tonlage/.pyenv/bin:$PATH"
-export PATH="/home/tonlage/Puters/scripts:$PATH"
-export PATH="/home/tonlage/go/bin:$PATH"
-export PATH="/home/tonlage/Puters/bin:$PATH"
+export PATH="$HOME/.pyenv/bin:$PATH"
+export PATH="$HOME/dotfiles/scripts:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$HOME/Puters/bin:$PATH"
 export PATH="/usr/lib/jvm/java-11-openjdk/bin/javac:$PATH"
 
 # Completion Path
@@ -66,6 +66,8 @@ alias findall="sudo find / 2>/dev/null"
 alias doc="man"
 alias vi="nvim"
 alias hd="hexdump -C"
+alias ports="sudo lsof -i -P | grep --color=never LISTEN"
+alias sqlite="sqlite3"
 #alias date="date --rfc-3339=seconds"
 
 #Aliases for configuration files
@@ -89,7 +91,7 @@ function l() {
 
 # Edit script in PATH
 function vit() {
-	vi $(type $1 | grep -oP "\S*$")
+	vi $(which $1)
 }
 
 # Write a file with delay per line -- useful for smtp scripting
