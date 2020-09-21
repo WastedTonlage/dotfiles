@@ -45,7 +45,6 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh > /dev/null
 
 # PATH setup
-export PATH="$HOME/.pyenv/bin:$PATH"
 export PATH="$HOME/dotfiles/scripts:$PATH"
 export PATH="$HOME/go/bin:$PATH"
 export PATH="$HOME/Puters/bin:$PATH"
