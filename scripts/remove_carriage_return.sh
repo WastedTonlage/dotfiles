@@ -6,7 +6,7 @@ else
     force=FALSE
 fi
 tmp="$(mktemp -d)"
-find "$1" -type d | xargs -I% mkdir -p "${tmp}%"
+find "$1" -type d | xargs -I% mkdir -p "${tmp}/%"
 find "$1" -type f | while read -r file; do
    desc=$(file "$file")
    tmpfile="${tmp}/$file"

@@ -5,7 +5,7 @@ Plug 'tpope/vim-surround'
 Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
 Plug 'neovim/nvim-lsp'
-Plug 'ajh17/vimcompletesme'
+Plug 'nvim-lua/completion-nvim'
 
 " Snippets
 Plug 'SirVer/ultisnips'
@@ -42,6 +42,8 @@ nmap å <CMD>q<CR>
 
 nnoremap ( <CMD>noh<CR>
 
+nnoremap % %zz
+vnoremap % %zz
 nnoremap j gjzz
 nnoremap k gkzz
 vnoremap j gjzz
@@ -65,19 +67,32 @@ noremap C-k k
 inoremap <c-s> <ESC>:w<CR>i
 noremap <c-s> :w<CR>
 
+set clipboard+=unnamedplus
+
 color delek
 
 lua << EOF
 require('nvim_lsp').pyls.setup{}
 require('nvim_lsp').clangd.setup{}
 require('nvim_lsp').rust_analyzer.setup{}
+require('nvim_lsp').tsserver.setup{on_attach=require'completion'.on_attach}
 EOF
 
 augroup lspgroup
-    autocmd Filetype c,cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
     autocmd Filetype c,cpp nnoremap <TAB> <C-x><C-o>
     autocmd Filetype c,cpp inoremap <TAB> <C-x><C-o>
 augroup END
+
+" Use <Tab> and <S-Tab> to navigate through popup menu
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <Return> pumvisible() ? 
+
+" Set completeopt to have a better completion experience (citation needed)
+set completeopt=menuone,noinsert
+
+" Avoid showing message extra message when using completion
+set shortmess+=c
 
 " Make F4 switch between .h and .cpp like QT Creator
 function Goto_header() 
