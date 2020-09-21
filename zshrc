@@ -66,6 +66,7 @@ alias findall="sudo find / 2>/dev/null"
 alias doc="man"
 alias vi="nvim"
 alias hd="hexdump -C"
+alias sx="startx"
 #alias date="date --rfc-3339=seconds"
 
 #Aliases for configuration files
@@ -79,6 +80,10 @@ alias comprc="vim ~/.config/picom.conf"
 alias playlist_dl='youtube-dl --extract-audio --proxy socks5://127.0.0.1:9050 -o "%(playlist_index)s - %(title)s.%(ext)s"'
 alias vid_dl='youtube-dl --extract-audio --proxy socks5://127.0.0.1:9050 -o "%(title)s.%(ext)s"'
 alias vid_dl_no_tor='youtube-dl --extract-audio -o "%(title)s.%(ext)s"'
+
+# Aliases for not forgetting to turn TOR on
+alias nc='nc -x 127.0.0.1:9050'
+alias nmap='nmap --proxies socks4://127.0.0.1:9050'
 
 #Generally useful functions
 function l() {
