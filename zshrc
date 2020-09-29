@@ -49,6 +49,7 @@ export PATH="$HOME/dotfiles/scripts:$PATH"
 export PATH="$HOME/go/bin:$PATH"
 export PATH="$HOME/Puters/bin:$PATH"
 export PATH="/usr/lib/jvm/java-11-openjdk/bin/javac:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # Completion Path
 export FPATH="/home/tonlage/Puters/completions:$FPATH"
