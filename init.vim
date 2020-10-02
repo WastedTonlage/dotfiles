@@ -1,7 +1,7 @@
 call plug#begin("~/.config/nvim/plugged")
 Plug 'gyim/vim-boxdraw'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-surround'
+Plug 'machakann/vim-sandwich'
 Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
 Plug 'neovim/nvim-lsp'
@@ -74,7 +74,7 @@ color delek
 lua << EOF
 require('nvim_lsp').pyls.setup{}
 require('nvim_lsp').clangd.setup{}
-require('nvim_lsp').rust_analyzer.setup{}
+require('nvim_lsp').rust_analyzer.setup{on_attach=require'completion'.on_attach}
 require('nvim_lsp').tsserver.setup{on_attach=require'completion'.on_attach}
 EOF
 
@@ -84,10 +84,11 @@ augroup lspgroup
 augroup END
 
 " Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <Return> pumvisible() ? 
-
+augroup complete_group
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Tab>    pumvisible() ? "\<C-n>" : "\<Tab>"
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <S-Tab>  pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Return> pumvisible() ? 
+augroup END
 " Set completeopt to have a better completion experience (citation needed)
 set completeopt=menuone,noinsert
 
