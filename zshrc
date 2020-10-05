@@ -11,7 +11,7 @@ bindkey '^R' history-incremental-search-backward
 #Colors
 autoload -U colors && colors
 #Prompt
-PS1="%F{#FF0000}[%f%F{#FF7000}%/%f%F{#FF0000}]%f%#> "
+PS1="%F{orange}[%f%F{orange}%/%f%F{#orange}]%f%#> "
 setopt promptsubst # Subshell expansion in the prompt, not bloated
 #Completion
 autoload -U compinit
@@ -44,6 +44,8 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 #Syntax highlighting module
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh > /dev/null
 
+export EDITOR=nvim
+
 # PATH setup
 export PATH="$HOME/dotfiles/scripts:$PATH"
 export PATH="$HOME/go/bin:$PATH"
@@ -61,7 +63,7 @@ alias dmenu="dmenu -sb red"
 alias pingg="ping 8.8.8.8"
 alias shut="sudo shutdown -h now"
 alias sus="sudo systemctl suspend"
-alias rm="rm -rf" # NOTE: Will regret this
+alias rm="rm -r" # NOTE: Will regret this
 alias findall="sudo find / 2>/dev/null"
 alias doc="man"
 alias vi="nvim"
