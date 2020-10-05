@@ -1,3 +1,5 @@
+#! /usr/local/bin/python3.8
+
 import sys
 import signal
 import datetime
@@ -9,7 +11,7 @@ import curses
 import threading
 import concurrent.futures
 
-IP = "192.168.135.43"
+IP = "192.168.0.100"
 PORT = 1234
 sockLock = threading.Lock()
 Chip = collections.namedtuple('Chip', ['Id', 'CustomerNumber', 'WashCode', 'TargetWeight'])
