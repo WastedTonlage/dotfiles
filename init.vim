@@ -118,6 +118,12 @@ augroup END
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
+augroup complete_group
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Tab>    pumvisible() ? "\<C-n>" : "\<Tab>"
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <S-Tab>  pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Return> pumvisible() ? 
+augroup END
+
 let g:completion_enable_snippet = 'UltiSnips'
 " Set completeopt to have a better completion experience (citation needed)
 set completeopt=menuone,noinsert
