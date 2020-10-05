@@ -1,7 +1,7 @@
 call plug#begin("~/.config/nvim/plugged")
 Plug 'gyim/vim-boxdraw'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-surround'
+Plug 'machakann/vim-sandwich'
 Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
 Plug 'neovim/nvim-lsp'
@@ -21,6 +21,7 @@ let mapleader="\<space>"
 set number relativenumber
 set virtualedit=all
 
+set ignorecase
 set smartcase
 
 set expandtab
@@ -71,11 +72,41 @@ set clipboard+=unnamedplus
 
 color delek
 
+
 lua << EOF
-require('nvim_lsp').pyls.setup{}
-require('nvim_lsp').clangd.setup{}
-require('nvim_lsp').rust_analyzer.setup{}
-require('nvim_lsp').tsserver.setup{on_attach=require'completion'.on_attach}
+local genericCapabilities = vim.lsp.protocol.make_client_capabilities()
+genericCapabilities.textDocument.codeAction = {
+    dynamicRegistration = false;
+    codeActionLiteralSupport = {
+        codeActionKind = {
+            valueSet = {
+                "",
+                "quickfix",
+                "refactor",
+                "refactor.extract",
+                "refactor.inline",
+                "refactor.rewrite",
+                "source"
+            };
+        };
+    };
+}
+require('nvim_lsp').pyls.setup{
+    on_attach=require'completion'.on_attach;
+    capabilities = genericCapabilities;
+}
+require('nvim_lsp').clangd.setup{
+    on_attach=require'completion'.on_attach;
+    capabilities = genericCapabilities;
+}
+require('nvim_lsp').rust_analyzer.setup{
+    on_attach=require'completion'.on_attach;
+    capabilities = genericCapabilities;
+}
+require('nvim_lsp').tsserver.setup{
+    on_attach=require'completion'.on_attach;
+    capabilities = genericCapabilities;
+}
 EOF
 
 augroup lspgroup
@@ -86,8 +117,8 @@ augroup END
 " Use <Tab> and <S-Tab> to navigate through popup menu
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <Return> pumvisible() ? 
 
+let g:completion_enable_snippet = 'UltiSnips'
 " Set completeopt to have a better completion experience (citation needed)
 set completeopt=menuone,noinsert
 
@@ -127,9 +158,6 @@ nnoremap <F2> <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap r    <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <F4> <cmd>call Toggle_header()<CR>
 
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 let g:UltiSnipsSnippetDirectories=["UltiSnips"]
 
 " Spell checking
