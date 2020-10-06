@@ -11,7 +11,7 @@ bindkey '^R' history-incremental-search-backward
 #Colors
 autoload -U colors && colors
 #Prompt
-PS1="%F{orange}[%f%F{orange}%/%f%F{#orange}]%f%#> "
+PS1="%F{208}[%f%F{208}%/%f%F{208}]%f%#> "
 setopt promptsubst # Subshell expansion in the prompt, not bloated
 #Completion
 autoload -U compinit
