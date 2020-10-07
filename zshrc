@@ -71,11 +71,12 @@ alias hd="hexdump -C"
 alias sx="startx"
 alias ports="sudo lsof -i -P | grep --color=never LISTEN"
 alias sqlite="sqlite3"
+alias cmake="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS"
 #alias date="date --rfc-3339=seconds"
 
 #Aliases for configuration files
 alias vimrc="vim ~/.config/nvim/init.vim"
-alias zshrc="vim ~/.zshrc"
+alias zshrc="vim ~/dotfiles/zshrc"
 alias dwmrc="vim ~/src/dwm/config.h"
 alias dwmbrc="vim ~/src/dwmblocks/blocks.h"
 alias comprc="vim ~/.config/picom.conf"
