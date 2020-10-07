@@ -108,3 +108,4 @@ function slowcat() {
 		echo "$REPLY"
 	done
 }
+fpath+=${ZDOTDIR:-~}/.zsh_functions
