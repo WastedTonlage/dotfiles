@@ -1,0 +1,17 @@
+default partial alphanumeric_keys
+xkb_symbols "basic" {
+    include "dk(basic)"
+
+    name[Group1]="tonlage";
+
+    key <AE01>	{ [     exclam,         1,   exclamdown,  onesuperior ]	};
+    key <AE02>	{ [   quotedbl,         2,           at,  twosuperior ]	};
+    key <AE03>	{ [ numbersign,         3,     sterling, threesuperior]	};
+    key <AE04>	{ [   currency,         4,       dollar,   onequarter ]	};
+    key <AE05>	{ [    percent,         5,      onehalf,         cent ]	};
+    key <AE06>	{ [  ampersand,         6,          yen,  fiveeighths ]	};
+    key <AE07>	{ [      slash,         7,    braceleft,     division ]	};
+    key <AE08>	{ [  parenleft,         8,  bracketleft, guillemotleft]	};
+    key <AE09>	{ [ parenright,         9, bracketright, guillemotright] };
+    key <AE10>	{ [      equal,         0,   braceright,       degree ]	};
+};

@@ -1,0 +1,10 @@
+#! /bin/sh
+
+secs=$1
+if [ $# -eq 2 ]; then
+    expire_text=$2
+else
+    expire_text="Expired"
+fi
+echo $(($(date +%s) + secs)) > /tmp/countdown_end
+echo ${expire_text} > /tmp/expire_text

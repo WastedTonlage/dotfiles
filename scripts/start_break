@@ -1,0 +1,13 @@
+#! /bin/sh
+
+log_file="$HOME/pomodoro_log/end_$(date --iso-8601=seconds)"
+last_begin=$HOME/pomodoro_log/$(ls $HOME/pomodoro_log | grep -P '^begin' | tail -n1)
+cp $last_begin $log_file
+nvim_term ${log_file}
+if [ $(cat /tmp/pomodoro_marks) = "4" ]; then
+    break_time=$((60 * 30))
+    echo "0" > /tmp/pomodoro_marks
+else
+    break_time=$((5 * 60))
+fi
+start_countdown ${break_time} "Get back to work"

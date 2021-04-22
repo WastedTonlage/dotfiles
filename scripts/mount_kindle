@@ -1,0 +1,11 @@
+#! /bin/sh
+
+KINDLE_PATH='/media/kindle'
+DEVICE="/dev/$(lsblk -f | grep Kindle | cut -d' ' -f1)"
+if [ "${DEVICE}" = "/dev/" ]; then
+    echo "Kindle not attached"
+    exit 1
+else
+    sudo mount "${DEVICE}" "${KINDLE_PATH}"
+    exit 0
+fi

@@ -1,0 +1,14 @@
+#! /bin/sh
+
+red=$(tput setaf 1)
+reset_col=$(tput sgr0)
+
+[ ! -e /tmp/countdown_end ] && exit 0
+
+DIFF=$(($(cat /tmp/countdown_end) - $(date +%s)))
+
+if [ "${DIFF}" -lt 0 ] ; then
+    echo $(cat /tmp/expire_text)
+else
+    date +'%M:%S' -d "@${DIFF}"
+fi

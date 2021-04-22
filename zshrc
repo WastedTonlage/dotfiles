@@ -11,7 +11,7 @@ bindkey '^R' history-incremental-search-backward
 #Colors
 autoload -U colors && colors
 #Prompt
-PS1="%F{208}[%f%F{208}%/%f%F{208}]%f%#> "
+PS1=" %F{yellow}%/%f %#> "
 setopt promptsubst # Subshell expansion in the prompt, not bloated
 #Completion
 autoload -U compinit
@@ -46,12 +46,22 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 export EDITOR=nvim
 
+# Makes java applications accept that dwm is a valid wm
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# Makes flutter find chromium
+export CHROME_EXECUTABLE="/usr/bin/chromium"
+
 # PATH setup
 export PATH="$HOME/dotfiles/scripts:$PATH"
 export PATH="$HOME/go/bin:$PATH"
 export PATH="$HOME/Puters/bin:$PATH"
 export PATH="/usr/lib/jvm/java-11-openjdk/bin/javac:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.gem/ruby/2.7.0/bin:$PATH"
+export PATH="$HOME/src/flutter/bin:$PATH"
+
+
 
 # Completion Path
 export FPATH="/home/tonlage/Puters/completions:$FPATH"
@@ -71,7 +81,8 @@ alias hd="hexdump -C"
 alias sx="startx"
 alias ports="sudo lsof -i -P | grep --color=never LISTEN"
 alias sqlite="sqlite3"
-alias cmake="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS"
+alias cmake="cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+alias horse="for i in {1..4}; do shuf -n1 /usr/share/dict/words | tr -dc '[:alpha:]' | sed 's/.*/\u&/'  ; done"
 #alias date="date --rfc-3339=seconds"
 
 #Aliases for configuration files
@@ -83,18 +94,22 @@ alias comprc="vim ~/.config/picom.conf"
 
 # Youtube-dl aliases
 alias playlist_dl='youtube-dl --extract-audio --proxy socks5://127.0.0.1:9050 -o "%(playlist_index)s - %(title)s.%(ext)s"'
+alias playlist_dl_no_tor='youtube-dl --extract-audio -o "%(playlist_index)s - %(title)s.%(ext)s"'
 alias vid_dl='youtube-dl --extract-audio --proxy socks5://127.0.0.1:9050 -o "%(title)s.%(ext)s"'
 alias vid_dl_no_tor='youtube-dl --extract-audio -o "%(title)s.%(ext)s"'
 
 # Aliases for not forgetting to turn TOR on
-alias nc='nc -x 127.0.0.1:9050'
+alias nc_no_tor='nc'
+# alias nc='nc -x 127.0.0.1:9050'
 alias nmap='nmap --proxies socks4://127.0.0.1:9050'
 
 #Generally useful functions
 function l() {
-	if [ $# -eq 0 ] && return
-	cd $1
-	ls
+	if [ $# -eq 0 ] ; then 
+        ls
+    else
+        cd $1 && ls
+    fi
 }
 
 # Edit script in PATH
@@ -109,4 +124,13 @@ function slowcat() {
 		echo "$REPLY"
 	done
 }
+
+function rand() {
+    echo $(($RANDOM % $1))
+}
+
 fpath+=${ZDOTDIR:-~}/.zsh_functions
+
+# Launch graphical shit if it isn't already running
+ps -ef | grep -vF grep | grep -F '/usr/lib/Xorg' 2>&1 1>/dev/null || startx 
+[ -f "/home/tonlage/.ghcup/env" ] && source "/home/tonlage/.ghcup/env" # ghcup-env

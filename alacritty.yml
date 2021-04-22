@@ -49,7 +49,7 @@
   # Values for `decorations` (macOS only):
   #     - transparent: Title bar, transparent background and title bar buttons
   #     - buttonless: Title bar, transparent background, but no title bar buttons
-  #decorations: full
+  # decorations: none
 
   # Startup Mode (changes require restart)
   #
@@ -63,7 +63,7 @@
   #startup_mode: Windowed
 
   # Window title
-  #title: Alacritty
+  # title: Alacritty
 
   # Window class (Linux/BSD only):
   #class:
@@ -174,9 +174,8 @@ font:
 colors:
   # Default colors
   primary:
-    background: '#3a3a3a'
-    foreground: '#FFFFFF'
-
+      background: '#282828'
+      foreground: '#ebdbb2'
     # Bright and dim foreground colors
     #
     # The dimmed foreground color is calculated automatically if it is not present.
@@ -190,39 +189,39 @@ colors:
     # Colors which should be used to draw the terminal cursor. If these are unset,
     # the cursor color will be the inverse of the cell color.
   cursor:
-    text: '#000000'
-    cursor: '#ffffff'
-
+    text: '#3a3a3a'
+    cursor:  '#ffffff'
+             
     # Selection colors
   
     # Colors which should be used to draw the selection area. If selection
     # background is unset, selection color will be the inverse of the cell colors.
     # If only text is unset the cell text color will remain the same.
-  selection:
-    text: '#eaeaea'
-    background: '#404040'
+    # selection:
+    #   text: '#eaeaea'
+    #   background: '#404040'
 
     # Normal colors
   normal:
-    black:   '#000000'
-    red:     '#d54e53'
-    green:   '#b9ca4a'
-    yellow:  '#e3c44f'
-    blue:    '#7aa6da'
-    magenta: '#c397d8'
-    cyan:    '#70c0ba'
-    white:   '#eaeaea'
+    black:   '#1d2021'
+    red:     '#cc241d'
+    green:   '#98971a'
+    yellow:  '#d79921'
+    blue:    '#458588'
+    magenta: '#b16286'
+    cyan:    '#689d6a'
+    white:   '#fbf1c7'
 
   # Bright colors
-  #bright:
-  #  black:   '#666666'
-  #  red:     '#ff3334'
-  #  green:   '#9ec400'
-  #  yellow:  '#e7c547'
-  #  blue:    '#7aa6da'
-  #  magenta: '#b77ee0'
-  #  cyan:    '#54ced6'
-  #  white:   '#ffffff'
+  bright:
+    black:   '#1d2021'
+    red:     '#fb4934'
+    green:   '#b8bb26'
+    yellow:  '#fabd2f'
+    blue:    '#83a598'
+    magenta: '#d3869b'
+    cyan:    '#8ec07c'
+    white:   '#FFFFFF'
 
   # Dim colors
   #
@@ -246,7 +245,9 @@ colors:
   # Example:
   #   `- { index: 16, color: '#ff00ff' }`
   #
-  #indexed_colors: []
+  # indexed_colors: [
+  #     { index: 208, color: '#fe8019' }
+  # ]
 
 # Visual Bell
 #
@@ -278,7 +279,7 @@ colors:
 #
 # Window opacity as a floating point number from `0.0` to `1.0`.
 # The value `0.0` is completely transparent and `1.0` is opaque.
-#background_opacity: 1.0
+background_opacity: 1.0
 
 #selection:
   #semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
@@ -287,7 +288,7 @@ colors:
   #save_to_clipboard: false
 
 # Allow terminal applications to change Alacritty's window title.
-#dynamic_title: true
+# dynamic_title: true
 
 #cursor:
   # Cursor style

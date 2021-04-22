@@ -1,0 +1,7 @@
+#! /bin/sh
+
+FILE=$1
+FILE_NAME=$(echo "${FILE}" | grep -oP '[^/.]+(?=[^/]*$)')
+echo $FILE_NAME
+ORIG_EXT=$(echo "${FILE}" | grep -oP '\[^.]+$')
+echo $ORIG_EXT

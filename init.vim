@@ -4,8 +4,15 @@ Plug 'tpope/vim-fugitive'
 Plug 'machakann/vim-sandwich'
 Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
-Plug 'neovim/nvim-lsp'
 Plug 'nvim-lua/completion-nvim'
+Plug 'dart-lang/dart-vim-plugin'
+Plug 'morhetz/gruvbox'
+Plug 'dhruvasagar/vim-table-mode'
+Plug 'alvan/vim-closetag'
+
+Plug 'neovim/nvim-lspconfig'
+Plug 'RishabhRD/popfix'
+Plug 'RishabhRD/nvim-lsputils'
 
 " Snippets
 Plug 'SirVer/ultisnips'
@@ -13,10 +20,14 @@ Plug 'SirVer/ultisnips'
 " Git (mostly for merging)
 Plug 'tpope/vim-fugitive'
 
+" LaTeX
+Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
 call plug#end()
 
 map <Space> <Nop>
 let mapleader="\<space>"
+
+set modeline
 
 set number relativenumber
 set virtualedit=all
@@ -34,8 +45,7 @@ set hidden
 
 " go to conf
 command! Configure edit ~/.config/nvim/init.vim
-cnoreabbrev conf Configure 
-"
+
 " Danish keyboard 
 nmap ¤ $
 omap ¤ $
@@ -68,60 +78,51 @@ noremap C-k k
 inoremap <c-s> <ESC>:w<CR>i
 noremap <c-s> :w<CR>
 
+tnoremap <Esc> <C-\><C-n>
+
 set clipboard+=unnamedplus
 
-color delek
-
+color gruvbox
 
 lua << EOF
-local genericCapabilities = vim.lsp.protocol.make_client_capabilities()
-genericCapabilities.textDocument.codeAction = {
-    dynamicRegistration = false;
-    codeActionLiteralSupport = {
-        codeActionKind = {
-            valueSet = {
-                "",
-                "quickfix",
-                "refactor",
-                "refactor.extract",
-                "refactor.inline",
-                "refactor.rewrite",
-                "source"
-            };
-        };
-    };
-}
-require('nvim_lsp').pyls.setup{
+ require('lspconfig').pyls.setup{
     on_attach=require'completion'.on_attach;
-    capabilities = genericCapabilities;
-}
-require('nvim_lsp').clangd.setup{
+ }
+ require('lspconfig').hls.setup{
     on_attach=require'completion'.on_attach;
-    capabilities = genericCapabilities;
-}
-require('nvim_lsp').rust_analyzer.setup{
+    filetypes={'haskell'};
+ }
+ require('lspconfig').clangd.setup{
     on_attach=require'completion'.on_attach;
-    capabilities = genericCapabilities;
-}
-require('nvim_lsp').tsserver.setup{
+ }
+ require('lspconfig').rust_analyzer.setup{
     on_attach=require'completion'.on_attach;
-    capabilities = genericCapabilities;
-}
+ }
+ require('lspconfig').tsserver.setup{
+    on_attach=require'completion'.on_attach;
+ }
+ require('lspconfig').dartls.setup{
+    on_attach=require'completion'.on_attach;
+ }
+
+ vim.lsp.handlers['textDocument/codeAction'] = require'lsputil.codeAction'.code_action_handler
+ vim.lsp.handlers['textDocument/references'] = require'lsputil.locations'.references_handler
+ vim.lsp.handlers['textDocument/definition'] = require'lsputil.locations'.definition_handler
+ vim.lsp.handlers['textDocument/declaration'] = require'lsputil.locations'.declaration_handler
+ vim.lsp.handlers['textDocument/typeDefinition'] = require'lsputil.locations'.typeDefinition_handler
+ vim.lsp.handlers['textDocument/implementation'] = require'lsputil.locations'.implementation_handler
+ vim.lsp.handlers['textDocument/documentSymbol'] = require'lsputil.symbols'.document_handler
+ vim.lsp.handlers['workspace/symbol'] = require'lsputil.symbols'.workspace_handler
 EOF
 
-augroup lspgroup
-    autocmd Filetype c,cpp nnoremap <TAB> <C-x><C-o>
-    autocmd Filetype c,cpp inoremap <TAB> <C-x><C-o>
+
+augroup gdbgroup 
+    autocmd Filetype c,cpp,rs packadd termdebug
 augroup END
 
-" Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
 augroup complete_group
-    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Tab>    pumvisible() ? "\<C-n>" : "\<Tab>"
-    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <S-Tab>  pumvisible() ? "\<C-p>" : "\<S-Tab>"
-    autocmd Filetype rs,cpp,c,py.ts inoremap <expr> <Return> pumvisible() ? 
+    autocmd Filetype rs,cpp,c,py,ts,hs inoremap <expr> <Tab>    pumvisible() ? "\<C-n>" : "\<Tab>"
+    autocmd Filetype rs,cpp,c,py,ts.hs inoremap <expr> <S-Tab>  pumvisible() ? "\<C-p>" : "\<S-Tab>"
 augroup END
 
 let g:completion_enable_snippet = 'UltiSnips'
@@ -163,11 +164,16 @@ endfunction
 nnoremap <F2> <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap r    <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <F4> <cmd>call Toggle_header()<CR>
+nnoremap C    <cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <F3> <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 
 let g:UltiSnipsSnippetDirectories=["UltiSnips"]
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>" 
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " Spell checking
-autocmd FileType text call SpellChecking()
+autocmd FileType text,md,markdown call SpellChecking()
 
 function SpellChecking()
     if expand('%:t') != 'settings.txt'
@@ -199,3 +205,6 @@ function Run_Cmake()
     ! cmake ..
     exec 'cd' current_dir
 endfunction
+
+" LaTeX
+let g:livepreview_previewer = "zathura"

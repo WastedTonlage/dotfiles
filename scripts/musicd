@@ -52,7 +52,7 @@ function yt() {
 }
 
 function play() {
-	echo "select location from songs where name=\"$(echo 'select name from songs' | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -i -l 30 -p 'Select Song')\"" | sqlite3 /home/tonlage/Music/musicd.db > /tmp/musicd-queue
+	echo "select location from songs where name=\"$(echo 'select name, tags from songs' | sqlite3 /home/tonlage/Music/musicd.db | dmenu -sb red -i -l 30 -p 'Select Song' | grep -oP '^[^\|]+')\"" | sqlite3 /home/tonlage/Music/musicd.db > /tmp/musicd-queue
 	echo "1" > /tmp/musicd-index
 	removepausetag
 	tryrestart
@@ -133,7 +133,7 @@ function seek () {
 }
 
 function showqueue () {
-	nl -w 2 /tmp/musicd-queue |gawk 'BEGIN{getline idx <"/tmp/musicd-index"} NR > idx - 10 && NR < idx + 10 && NR != idx {print $0 } NR == idx {print "\033[34m" $0 "\033[0m"}' 
+	nl -w 2 /tmp/musicd-queue | gawk 'BEGIN{getline idx <"/tmp/musicd-index"} NR > idx - 10 && NR < idx + 10 && NR != idx {print $0 } NR == idx {print "\033[34m" $0 "\033[0m"}' 
 }
 
 function volume () {

@@ -1,0 +1,5 @@
+#! /bin/sh
+
+nvim_term "$HOME/pomodoro_log/begin_$(date --iso-8601=seconds)"
+echo $(($(cat /tmp/pomodoro_marks) + 1)) > /tmp/pomodoro_marks
+start_countdown $((25 * 60)) "Take a break"
